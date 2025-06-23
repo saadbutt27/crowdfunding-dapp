@@ -11,26 +11,35 @@ interface Campaign {
   deadline: string;
   amountCollected: string;
   image: string;
-  pId: number
+  pId: number;
 }
 
 const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [availableCampaigns, setAvailableCampaigns] = useState<Campaign[]>([]);
+  const [unavailableCampaigns, setUnavailableCampaigns] = useState<Campaign[]>([]);
 
   const context = useStateContext();
   if (!context) {
-    throw new Error(
-      "useStateContext must be used within a StateContextProvider"
-    );
+    throw new Error("useStateContext must be used within a StateContextProvider");
   }
+
   const { address, contract, getCampaigns } = context;
 
   const fetchCampaigns = async () => {
     setIsLoading(true);
     const data = await getCampaigns();
     if (data) {
-      setCampaigns(data as Campaign[]);
+      const now = Date.now();
+      const available = (data as Campaign[]).filter(
+        (c) => Number(c.deadline) > now
+      );
+      const unavailable = (data as Campaign[]).filter(
+        (c) => Number(c.deadline) <= now
+      );
+
+      setAvailableCampaigns(available);
+      setUnavailableCampaigns(unavailable);
     }
     setIsLoading(false);
   };
@@ -42,11 +51,18 @@ const Home = () => {
   }, [address, contract]);
 
   return (
-    <DisplayCampaigns 
-      title="All Campaigns"
-      isLoading={isLoading}
-      campaigns={campaigns}
-    />
+    <div className="flex flex-col gap-10">
+      <DisplayCampaigns
+        title="Available Campaigns"
+        isLoading={isLoading}
+        campaigns={availableCampaigns}
+      />
+      <DisplayCampaigns
+        title="Unavailable Campaigns"
+        isLoading={isLoading}
+        campaigns={unavailableCampaigns}
+      />
+    </div>
   );
 };
 

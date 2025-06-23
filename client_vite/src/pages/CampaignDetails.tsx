@@ -187,6 +187,7 @@ const CampaignDetails = () => {
                 btnType="button"
                 styles="w-full bg-[#8c6dfd]"
                 handleClick={handleDonate}
+                disabled={Number(remainingDays) <= 0}
               />
             </div>
           </div>
