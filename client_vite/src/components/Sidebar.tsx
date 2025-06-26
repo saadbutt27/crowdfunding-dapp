@@ -9,7 +9,6 @@ type IconProps = {
   name?: string;
   imgUrl: string;
   isActive?: string | boolean;
-  disabled?: boolean;
   handleClick?: () => void;
 };
 
@@ -18,26 +17,28 @@ const Icon: React.FC<IconProps> = ({
   name,
   imgUrl,
   isActive,
-  disabled,
   handleClick,
 }) => {
   return (
-    <div
-      className={`w-[48px] h-[48px] rounded-[10px] ${
-        isActive && isActive === name && "bg-[#2c2f32]"
-      } flex justify-center items-center ${
-        !disabled && "cursor-pointer"
-      } ${styles}`}
-      onClick={handleClick}
-    >
-      {!isActive ? (
-        <img src={imgUrl} alt="fund_logo" className="w-1/2 h-1/2" />
-      ) : (
+    <div className="relative group">
+      <div
+        className={`w-[48px] h-[48px] rounded-[10px] ${
+          isActive && isActive === name && "bg-[#2c2f32]"
+        } flex justify-center items-center cursor-pointer ${styles}`}
+        onClick={handleClick}
+      >
         <img
           src={imgUrl}
-          alt="fund_logo"
-          className={`w-1/2 h-1/2 ${isActive !== name && "grayscale"}`}
+          alt={`${name}_icon`}
+          className={`w-1/2 h-1/2 ${isActive !== name && isActive && "grayscale"}`}
         />
+      </div>
+
+      {/* Tooltip */}
+      {name && (
+        <div className="absolute left-[60px] top-1/2 -translate-y-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-10">
+          {name.charAt(0).toUpperCase() + name.slice(1)}
+        </div>
       )}
     </div>
   );
@@ -61,7 +62,6 @@ const Sidebar = () => {
               {...link}
               isActive={isActive}
               handleClick={() => {
-                if (link.disabled) return;
                 setIsActive(link.name);
                 navigate(link.link);
               }}
